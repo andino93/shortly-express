@@ -5,7 +5,7 @@ const partials = require('express-partials');
 const bodyParser = require('body-parser');
 const Auth = require('./middleware/auth');
 const models = require('./models');
-const cookie = require('./middleware/cookieParser');
+const Cookie = require('./middleware/cookieParser');
 
 const app = express();
 
@@ -14,7 +14,8 @@ app.set('view engine', 'ejs');
 app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookie);
+app.use(Cookie);
+app.use(Auth.createSession);
 app.use(express.static(path.join(__dirname, '../public')));
 
 
@@ -92,7 +93,7 @@ app.post('/links',
 /************************************************************/
 
 app.post('/signup', 
-  (req, res, next) => {
+  (req, res) => {
     models.Users.create(req.body)
       .then(() => res.redirect('/'))
       .catch(() => res.redirect('/signup'));
@@ -100,19 +101,10 @@ app.post('/signup',
   });
 
 app.post('/login', 
-  (req, res, next) => {
-    // needs to check is user exsists
+  (req, res) => {
     models.Users.get({username: req.body.username})
-      .then(({password, salt}) => {
-        return models.Users.compare(req.body.password, password, salt);
-      })
-      .then((boolean) => {
-        if (boolean) {
-          res.redirect('/');
-        } else {
-          res.redirect('/login');
-        }
-      })
+      .then(({password, salt}) => models.Users.compare(req.body.password, password, salt))
+      .then((boolean) => boolean ? res.redirect('/') : res.redirect('/login'))
       .catch(() => res.redirect('/login'));
   });
 
