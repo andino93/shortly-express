@@ -95,16 +95,23 @@ app.post('/links',
 app.post('/signup', 
   (req, res) => {
     models.Users.create(req.body)
+      .then(() => models.Users.get({username: req.body.username}))
+      .then(({id}) => models.Sessions.update({hash: req.cookies.shortlyid.value}, {userid: id}))
       .then(() => res.redirect('/'))
       .catch(() => res.redirect('/signup'));
-     
   });
 
 app.post('/login', 
   (req, res) => {
     models.Users.get({username: req.body.username})
-      .then(({password, salt}) => models.Users.compare(req.body.password, password, salt))
-      .then((boolean) => boolean ? res.redirect('/') : res.redirect('/login'))
+      .then(({id, password, salt}) => {
+        if (models.Users.compare(req.body.password, password, salt)) {
+          models.Sessions.update({hash: req.cookies.shortlyid.value}, {userid: id})
+            .then(() => res.redirect('/'));
+        } else {
+          throw new Error('incorrect password');
+        }
+      })
       .catch(() => res.redirect('/login'));
   });
 

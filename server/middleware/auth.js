@@ -2,12 +2,14 @@ const models = require('../models');
 const Promise = require('bluebird');
 
 const createNewSession = (req, res, session, callback) => {
-  res.cookies = {};
+  // res.cookies = {};
   session.user = {username: req.body.username};
   req.session = session;
-  res.cookies.shortlyid = {value: session.hash};
+  req.cookies = {
+    shortlyid: {value: session.hash}
+  };
   // console.log(req.body)
-  res.cookie = [{shortlyid: session.hash}];
+  res.cookie('shortlyid', session.hash);
   callback();
 };
 
