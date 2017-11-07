@@ -531,6 +531,7 @@ describe('', function() {
         if (err) { return done(err); }
         var cookies = cookieJar.getCookies('http://127.0.0.1:4568/');
         var cookieValue = cookies[0].value;
+        console.log(cookies)
 
         var queryString = `
           SELECT users.username FROM users, sessions

@@ -108,6 +108,12 @@ app.post('/login',
       .catch(() => res.redirect('/login'));
   });
 
+// app.post('/logout', 
+//   (req, res) => {
+//     // models.Sessions.delete()
+//     console.log('heloooo', req.cookies)
+//   });
+
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
