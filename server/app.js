@@ -22,7 +22,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.get('/', 
   (req, res) => {
-    res.render('index');
+    Auth.verifySession(req, res)
   });
 
 app.get('/create', 
@@ -38,6 +38,16 @@ app.get('/login',
 app.get('/signup', 
   (req, res) => {
     res.render('signup');
+  });
+
+app.get('/logout', 
+  (req, res) => {
+    models.Sessions.delete({hash: req.cookies.shortlyid})
+      .then(() => {
+        res.cookie('shortlyid', {expires: new Date()});
+        res.redirect('/');
+      })
+      .catch(err => console.log(err));
   });
 
 app.get('/links', 
@@ -87,11 +97,6 @@ app.post('/links',
       });
   });
 
-
-/************************************************************/
-// Write your authentication routes here
-/************************************************************/
-
 app.post('/signup', 
   (req, res) => {
     models.Users.create(req.body)
@@ -115,11 +120,11 @@ app.post('/login',
       .catch(() => res.redirect('/login'));
   });
 
-// app.post('/logout', 
-//   (req, res) => {
-//     // models.Sessions.delete()
-//     console.log('heloooo', req.cookies)
-//   });
+/************************************************************/
+// Write your authentication routes here
+/************************************************************/
+
+
 
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail

@@ -18,9 +18,10 @@ module.exports.createSession = (req, res, next) => {
   if (req.cookies && Object.keys(req.cookies).length > 0) {
     // models.Users.get({username: req.body.username})
     // .then((user) => 
-      models.Sessions.get({hash: req.cookies.shortlyid})
+    models.Sessions.get({hash: req.cookies.shortlyid})
       .then(session => {
         req.session = session;
+        // req.session.user = req.body.username;
         next();
       })
       .catch(() => {
@@ -53,6 +54,20 @@ module.exports.createSession = (req, res, next) => {
 //  avail to all server routes that require login
 //  require users to log in to see shortenedd links and create new ones
 //  do not requre user to login wehn using a prev shortened link
+
+
+
+module.exports.verifySession = (req, res, callback) => {
+  if (req.session.user.username) {
+    res.render('index');
+  } else {
+    res.redirect('/login')
+  }
+};
+
+
+
+
 
 // give user a way to log out
 //  what happens to server session and cookie saved to clients browser?
